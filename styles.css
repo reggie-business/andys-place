@@ -41,7 +41,20 @@ body {
 }
 
 .brand {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.25rem;
+  align-items: center;
   max-width: 620px;
+}
+
+.headshot {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 2px solid rgba(54, 73, 88, 0.14);
+  box-shadow: 0 16px 32px rgba(54, 73, 88, 0.12);
 }
 
 .brand strong {
@@ -76,6 +89,25 @@ body {
 
 .nav a:hover {
   background: rgba(85, 130, 139, 0.12);
+  transform: translateY(-1px);
+}
+
+.contact-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 0.95rem 1.4rem;
+  border-radius: 999px;
+  background: var(--pacific-cyan);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.contact-button:hover {
+  background: var(--dark-slate-grey);
   transform: translateY(-1px);
 }
 
