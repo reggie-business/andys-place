@@ -30,11 +30,13 @@ const weatherCodes = {
 };
 
 export function initWeather() {
+  console.debug('weather: initWeather()');
   const iconEl = document.getElementById('weather-icon');
   const tempEl = document.getElementById('weather-temp');
   const descEl = document.getElementById('weather-desc');
   const noteEl = document.getElementById('weather-note');
   const actionBtn = document.getElementById('weather-action');
+  console.debug('weather: elements', { iconEl, tempEl, descEl, noteEl, actionBtn });
 
   function updateWeather({ emoji, label, temperature, note = '' }) {
     if (iconEl) iconEl.textContent = emoji;
@@ -101,6 +103,25 @@ export function initWeather() {
   if ('geolocation' in navigator) {
     setActionButton('Allow location', true);
     if (actionBtn) actionBtn.addEventListener('click', requestLocation);
+    else console.warn('weather: action button not found; user cannot trigger location request');
+
+    // If permission already granted, request location immediately
+    if (navigator.permissions && navigator.permissions.query) {
+      try {
+        navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+          console.debug('weather: geolocation permission state', result.state);
+          if (result.state === 'granted') {
+            requestLocation();
+          }
+          result.onchange = () => {
+            console.debug('weather: permission changed to', result.state);
+            if (result.state === 'granted') requestLocation();
+          };
+        }).catch((e) => console.warn('weather: permissions.query failed', e));
+      } catch (e) {
+        // ignore
+      }
+    }
   } else {
     showError('Geolocation not supported.');
     setActionButton('', false);
