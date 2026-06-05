@@ -105,6 +105,29 @@ export function initWeather() {
     if (actionBtn) actionBtn.addEventListener('click', requestLocation);
     else console.warn('weather: action button not found; user cannot trigger location request');
 
+    // Always add a small debug trigger so users can request weather explicitly
+    try {
+      const card = document.querySelector('.weather-card');
+      if (card) {
+        let debugBtn = document.getElementById('weather-debug-action');
+        if (!debugBtn) {
+          debugBtn = document.createElement('button');
+          debugBtn.id = 'weather-debug-action';
+          debugBtn.textContent = 'Get weather';
+          debugBtn.style.marginTop = '0.75rem';
+          debugBtn.style.padding = '0.5rem 0.75rem';
+          debugBtn.style.borderRadius = '999px';
+          debugBtn.style.border = '1px solid rgba(54,73,88,0.08)';
+          debugBtn.style.background = 'rgba(255,255,255,0.9)';
+          debugBtn.style.cursor = 'pointer';
+          debugBtn.addEventListener('click', requestLocation);
+          card.appendChild(debugBtn);
+        }
+      }
+    } catch (e) {
+      console.warn('weather: failed to add debug button', e);
+    }
+
     // If permission already granted, request location immediately
     if (navigator.permissions && navigator.permissions.query) {
       try {
