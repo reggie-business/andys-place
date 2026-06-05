@@ -52,20 +52,20 @@ float fbm(vec2 p) {
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution;
   vec2 aspect = vec2(u_resolution.x / u_resolution.y, 1.0);
-  vec2 p = (uv - 0.5) * aspect * 1.75;
-  float t = u_time * 0.12;
+  vec2 p = (uv - 0.5) * aspect * 1.85;
+  float t = u_time * 0.14;
 
   vec2 warpBase = p + vec2(
-    sin(p.y * 2.3 + t * 0.8) * 0.2,
-    cos(p.x * 2.1 - t * 0.9) * 0.2
+    sin(p.y * 2.1 + t * 0.7) * 0.16 + noise(p * 1.5 + vec2(t * 0.2, -t * 0.18)) * 0.08,
+    cos(p.x * 2.0 - t * 0.9) * 0.16 + noise(p * 1.6 - vec2(-t * 0.14, t * 0.24)) * 0.08
   );
 
-  float n = fbm(warpBase * 1.1 + vec2(t * 0.14, t * 0.11));
-  vec2 warpCoords = warpBase + vec2(n * 0.32, n * 0.32);
-  float value = fbm(warpCoords * 1.6 + vec2(t * 0.08, -t * 0.1));
-  value = smoothstep(0.25, 0.75, value);
+  float n = fbm(warpBase * 1.05 + vec2(t * 0.12, t * 0.1));
+  vec2 warpCoords = warpBase + vec2(n * 0.28, n * 0.28);
+  float value = fbm(warpCoords * 1.55 + vec2(t * 0.09, -t * 0.11));
+  value = smoothstep(0.2, 0.72, value);
 
-  float gray = mix(0.12, 0.38, value) * 0.82;
+  float gray = mix(0.14, 0.44, value) * 0.78;
   gray = clamp(gray, 0.0, 1.0);
 
   gl_FragColor = vec4(vec3(gray), u_opacity);
@@ -136,7 +136,12 @@ export default function FunhouseBackground() {
     const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
     const opacityLocation = gl.getUniformLocation(program, 'u_opacity');
 
-    if (!timeLocation || !resolutionLocation || !opacityLocation) {
+    if (
+      positionLocation === -1 ||
+      timeLocation === null ||
+      resolutionLocation === null ||
+      opacityLocation === null
+    ) {
       return undefined;
     }
 
