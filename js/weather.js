@@ -1,0 +1,108 @@
+const weatherCodes = {
+  0: { label: 'Clear skies', emoji: '☀️' },
+  1: { label: 'Mainly clear', emoji: '☀️' },
+  2: { label: 'Partly cloudy', emoji: '⛅' },
+  3: { label: 'Overcast', emoji: '☁️' },
+  45: { label: 'Foggy', emoji: '🌫️' },
+  48: { label: 'Foggy', emoji: '🌫️' },
+  51: { label: 'Light drizzle', emoji: '🌧️' },
+  53: { label: 'Drizzle', emoji: '🌧️' },
+  55: { label: 'Rain shower', emoji: '🌧️' },
+  56: { label: 'Freezing drizzle', emoji: '🌧️' },
+  57: { label: 'Freezing drizzle', emoji: '🌧️' },
+  61: { label: 'Rain', emoji: '🌧️' },
+  63: { label: 'Rain', emoji: '🌧️' },
+  65: { label: 'Heavy rain', emoji: '🌧️' },
+  66: { label: 'Freezing rain', emoji: '🌧️' },
+  67: { label: 'Freezing rain', emoji: '🌧️' },
+  71: { label: 'Snow', emoji: '❄️' },
+  73: { label: 'Snow', emoji: '❄️' },
+  75: { label: 'Snow', emoji: '❄️' },
+  77: { label: 'Snow pellets', emoji: '❄️' },
+  80: { label: 'Rain showers', emoji: '🌧️' },
+  81: { label: 'Rain showers', emoji: '🌧️' },
+  82: { label: 'Heavy showers', emoji: '🌧️' },
+  85: { label: 'Snow showers', emoji: '❄️' },
+  86: { label: 'Snow showers', emoji: '❄️' },
+  95: { label: 'Thunderstorm', emoji: '⛈️' },
+  96: { label: 'Thunderstorm', emoji: '⛈️' },
+  99: { label: 'Thunderstorm', emoji: '⛈️' }
+};
+
+export function initWeather() {
+  const iconEl = document.getElementById('weather-icon');
+  const tempEl = document.getElementById('weather-temp');
+  const descEl = document.getElementById('weather-desc');
+  const noteEl = document.getElementById('weather-note');
+  const actionBtn = document.getElementById('weather-action');
+
+  function updateWeather({ emoji, label, temperature, note = '' }) {
+    if (iconEl) iconEl.textContent = emoji;
+    if (tempEl) tempEl.textContent = temperature;
+    if (descEl) descEl.textContent = label;
+    if (noteEl) noteEl.textContent = note;
+  }
+
+  function showError(message) {
+    updateWeather({ emoji: '⚠️', label: message, temperature: '--' });
+  }
+
+  function fetchWeather(latitude, longitude) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&timezone=auto`;
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) throw new Error('Weather service unavailable');
+        return response.json();
+      })
+      .then((data) => {
+        const current = data.current_weather;
+        if (!current) throw new Error('No current weather data');
+        const weather = weatherCodes[current.weathercode] || { label: 'Current conditions', emoji: '🌥️' };
+        updateWeather({
+          emoji: weather.emoji,
+          label: weather.label,
+          temperature: `${Math.round(current.temperature)}°F`,
+          note: `As of ${new Date(current.time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        showError('Unable to load weather');
+        if (noteEl) noteEl.textContent = 'Try again later or allow location access.';
+      });
+  }
+
+  function setActionButton(label, visible) {
+    if (!actionBtn) return;
+    actionBtn.textContent = label;
+    actionBtn.style.display = visible ? 'inline-flex' : 'none';
+    actionBtn.disabled = !visible;
+  }
+
+  function requestLocation() {
+    setActionButton('Requesting…', true);
+    if (descEl) descEl.textContent = 'Waiting for location permission...';
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setActionButton('', false);
+        fetchWeather(position.coords.latitude, position.coords.longitude);
+      },
+      (error) => {
+        const message = error.code === error.PERMISSION_DENIED
+          ? 'Location denied. Please enable location access in your browser.'
+          : 'Unable to retrieve location. Try again.';
+        showError(message);
+        setActionButton('Retry location', true);
+      },
+      { timeout: 10000 }
+    );
+  }
+
+  if ('geolocation' in navigator) {
+    setActionButton('Allow location', true);
+    if (actionBtn) actionBtn.addEventListener('click', requestLocation);
+  } else {
+    showError('Geolocation not supported.');
+    setActionButton('', false);
+  }
+}
