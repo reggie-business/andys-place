@@ -88,6 +88,29 @@ export function initWeather() {
     if (statusEl) statusEl.textContent = label ? `Weather action: ${label}` : 'Weather ready';
   }
 
+  function fetchLocationFromIp() {
+    console.debug('weather: fetching IP-based location fallback');
+    if (statusEl) statusEl.textContent = 'Falling back to approximate location...';
+    fetch('https://ipapi.co/json/')
+      .then((response) => {
+        if (!response.ok) throw new Error('IP geolocation service unavailable');
+        return response.json();
+      })
+      .then((data) => {
+        console.debug('weather: ip location data', data);
+        const latitude = parseFloat(data.latitude || data.lat);
+        const longitude = parseFloat(data.longitude || data.lon);
+        if (isNaN(latitude) || isNaN(longitude)) throw new Error('IP location data invalid');
+        if (descEl) descEl.textContent = `Using approximate location from IP (${data.city || 'unknown'})`;
+        fetchWeather(latitude, longitude);
+      })
+      .catch((error) => {
+        console.error('weather: IP fallback failed', error);
+        showError('Unable to determine location. Please try again.');
+        setActionButton('Retry location', true);
+      });
+  }
+
   function requestLocation() {
     console.debug('weather: requestLocation()');
     setActionButton('Requesting…', true);
@@ -102,16 +125,17 @@ export function initWeather() {
         (error) => {
           console.warn('weather: geolocation error', error);
           const message = error.code === error.PERMISSION_DENIED
-            ? 'Location denied. Please enable location access in your browser.'
-            : 'Unable to retrieve location. Try again.';
+            ? 'Location denied. Using approximate location instead.'
+            : 'Unable to retrieve location. Using approximate location instead.';
           showError(message);
-          setActionButton('Retry location', true);
+          fetchLocationFromIp();
         },
-        { timeout: 10000 }
+        { timeout: 30000, maximumAge: 600000, enableHighAccuracy: false }
       );
     } catch (e) {
       console.error('weather: navigator.geolocation.getCurrentPosition threw', e);
-      showError('Unable to retrieve location.');
+      showError('Unable to retrieve location. Using approximate location instead.');
+      fetchLocationFromIp();
     }
   }
 
