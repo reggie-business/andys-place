@@ -51,12 +51,15 @@ export function initWeather() {
 
   function fetchWeather(latitude, longitude) {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&timezone=auto`;
+    console.debug('weather: fetching url', url);
     fetch(url)
       .then((response) => {
+        console.debug('weather: fetch response', response.status);
         if (!response.ok) throw new Error('Weather service unavailable');
         return response.json();
       })
       .then((data) => {
+        console.debug('weather: fetch data', data);
         const current = data.current_weather;
         if (!current) throw new Error('No current weather data');
         const weather = weatherCodes[current.weathercode] || { label: 'Current conditions', emoji: '🌥️' };
@@ -68,7 +71,7 @@ export function initWeather() {
         });
       })
       .catch((error) => {
-        console.error(error);
+        console.error('weather: fetch error', error);
         showError('Unable to load weather');
         if (noteEl) noteEl.textContent = 'Try again later or allow location access.';
       });
@@ -82,22 +85,30 @@ export function initWeather() {
   }
 
   function requestLocation() {
+    console.debug('weather: requestLocation()');
     setActionButton('Requesting…', true);
     if (descEl) descEl.textContent = 'Waiting for location permission...';
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setActionButton('', false);
-        fetchWeather(position.coords.latitude, position.coords.longitude);
-      },
-      (error) => {
-        const message = error.code === error.PERMISSION_DENIED
-          ? 'Location denied. Please enable location access in your browser.'
-          : 'Unable to retrieve location. Try again.';
-        showError(message);
-        setActionButton('Retry location', true);
-      },
-      { timeout: 10000 }
-    );
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.debug('weather: got position', position.coords);
+          setActionButton('', false);
+          fetchWeather(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.warn('weather: geolocation error', error);
+          const message = error.code === error.PERMISSION_DENIED
+            ? 'Location denied. Please enable location access in your browser.'
+            : 'Unable to retrieve location. Try again.';
+          showError(message);
+          setActionButton('Retry location', true);
+        },
+        { timeout: 10000 }
+      );
+    } catch (e) {
+      console.error('weather: navigator.geolocation.getCurrentPosition threw', e);
+      showError('Unable to retrieve location.');
+    }
   }
 
   if ('geolocation' in navigator) {
@@ -123,6 +134,26 @@ export function initWeather() {
       } catch (e) {
         // ignore
       }
+    }
+    // Development helper: add a temporary debug button that forces a request and logs details
+    try {
+      const dbgId = 'weather-dev-trigger';
+      if (!document.getElementById(dbgId)) {
+        const btn = document.createElement('button');
+        btn.id = dbgId;
+        btn.textContent = 'Debug: request location';
+        btn.style.position = 'fixed';
+        btn.style.right = '1rem';
+        btn.style.top = '1rem';
+        btn.style.zIndex = 1200;
+        btn.addEventListener('click', () => {
+          console.debug('weather: debug button clicked');
+          requestLocation();
+        });
+        document.body.appendChild(btn);
+      }
+    } catch (e) {
+      console.warn('weather: failed to add debug trigger', e);
     }
   } else {
     showError('Geolocation not supported.');
