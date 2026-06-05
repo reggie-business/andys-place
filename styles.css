@@ -87,8 +87,8 @@ body::before {
 }
 
 .headshot {
-  width: 7.8rem;
-  height: 7.8rem;
+  width: 15.6rem;
+  height: 15.6rem;
   border-radius: 50%;
   object-fit: cover;
   opacity: 0.24;
@@ -283,8 +283,8 @@ body::before {
   }
 
   .headshot {
-    width: 6.5rem;
-    height: 6.5rem;
+    width: 12.4rem;
+    height: 12.4rem;
     top: 1.5rem;
     left: 1.5rem;
   }

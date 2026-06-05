@@ -255,6 +255,19 @@
       lockPage();
     }
 
+    const headshotEl = document.querySelector('.headshot');
+
+    function updateHeadshotOpacity() {
+      if (!headshotEl) return;
+      const maxScroll = 320;
+      const progress = Math.min(window.scrollY / maxScroll, 1);
+      const opacity = 0.24 + progress * 0.26;
+      headshotEl.style.opacity = opacity.toFixed(2);
+    }
+
+    window.addEventListener('scroll', updateHeadshotOpacity, { passive: true });
+    updateHeadshotOpacity();
+
     pwSubmit.addEventListener('click', checkPassword);
     pwInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
