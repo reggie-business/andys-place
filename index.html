@@ -72,5 +72,49 @@
     <img src="pink-piggy-bank.jpg" alt="Piggy bank" />
   </div>
   <script type="module" src="js/main.js"></script>
+  <script>
+    // Fallback for environments where ES modules don't load (file:// or blocked modules).
+    (function () {
+      if (window.__authInitialized) return;
+      const password = 'andysplace';
+      const pwInput = document.getElementById('passwordInput');
+      const pwSubmit = document.getElementById('passwordSubmit');
+      const pwError = document.getElementById('passwordError');
+      const gateEl = document.getElementById('passwordGate');
+      const pageEl = document.getElementById('pageContent');
+
+      function showError(msg) {
+        if (pwError) pwError.textContent = msg;
+        if (pwInput) pwInput.focus();
+      }
+
+      function unlock() {
+        document.body.classList.add('unlocked');
+        if (gateEl) gateEl.style.display = 'none';
+        if (pageEl) pageEl.style.display = 'block';
+        localStorage.setItem('siteUnlocked', 'true');
+      }
+
+      function check() {
+        if (!pwInput) return;
+        if (pwInput.value === password) unlock();
+        else showError('Incorrect password.');
+      }
+
+      if (pwSubmit) pwSubmit.addEventListener('click', check);
+      if (pwInput) pwInput.addEventListener('keydown', (e) => e.key === 'Enter' && check());
+
+      // Add a visible debug unlock button to help testing
+      const debugBtn = document.createElement('button');
+      debugBtn.textContent = 'Unlock (debug)';
+      debugBtn.style.position = 'fixed';
+      debugBtn.style.left = '1rem';
+      debugBtn.style.bottom = '1rem';
+      debugBtn.style.zIndex = 1200;
+      debugBtn.style.padding = '0.6rem 0.9rem';
+      debugBtn.addEventListener('click', unlock);
+      document.body.appendChild(debugBtn);
+    })();
+  </script>
 </body>
 </html>

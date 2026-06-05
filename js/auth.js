@@ -40,5 +40,12 @@ export function initAuth({ password = 'andysplace' } = {}) {
   if (pwSubmit) pwSubmit.addEventListener('click', check);
   if (pwInput) pwInput.addEventListener('keydown', (e) => e.key === 'Enter' && check());
 
+  // Mark that auth was initialized (used by a non-module fallback detection)
+  try {
+    window.__authInitialized = true;
+  } catch (e) {
+    // ignore
+  }
+
   return { unlock, lock };
 }
