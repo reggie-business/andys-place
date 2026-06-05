@@ -6,7 +6,6 @@ const statusEl = document.getElementById('weather-status');
 if (statusEl) {
   statusEl.textContent = 'JS loaded — initializing...';
 }
-console.log('main module loaded');
 
 window.addEventListener('DOMContentLoaded', () => {
   initAuth();

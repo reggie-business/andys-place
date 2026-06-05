@@ -5,7 +5,6 @@ export function initAuth({ password = 'andysplace' } = {}) {
   const pwError = document.getElementById('passwordError');
 
   const unlock = () => {
-    console.debug('auth: unlocking page');
     body.classList.add('unlocked');
     const gateEl = document.getElementById('passwordGate');
     const pageEl = document.getElementById('pageContent');
@@ -15,7 +14,6 @@ export function initAuth({ password = 'andysplace' } = {}) {
   };
 
   const lock = () => {
-    console.debug('auth: locking page');
     body.classList.remove('unlocked');
     const gateEl = document.getElementById('passwordGate');
     const pageEl = document.getElementById('pageContent');
