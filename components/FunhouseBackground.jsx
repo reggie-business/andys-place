@@ -62,13 +62,14 @@ void main() {
 
   float n = fbm(warpBase * 1.05 + vec2(t * 0.12, t * 0.1));
   vec2 warpCoords = warpBase + vec2(n * 0.28, n * 0.28);
-  float value = fbm(warpCoords * 1.55 + vec2(t * 0.09, -t * 0.11));
-  value = smoothstep(0.2, 0.72, value);
+  float detail = fbm(warpCoords * 2.0 + vec2(t * 0.09, -t * 0.11));
+  float mask = smoothstep(0.45, 0.72, detail);
 
-  float gray = mix(0.14, 0.44, value) * 0.78;
+  float gray = mix(0.22, 0.52, detail) * 0.72;
   gray = clamp(gray, 0.0, 1.0);
+  float alpha = pow(mask, 1.8) * 0.22;
 
-  gl_FragColor = vec4(vec3(gray), u_opacity);
+  gl_FragColor = vec4(vec3(gray), alpha * u_opacity);
 }
 `;
 
