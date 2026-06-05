@@ -337,6 +337,12 @@ body.unlocked .password-gate {
   font-size: 0.95rem;
 }
 
+.weather-status {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
 .weather-action {
   margin-top: 1.5rem;
   padding: 0.95rem 1.35rem;

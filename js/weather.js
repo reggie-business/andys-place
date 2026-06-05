@@ -36,7 +36,9 @@ export function initWeather() {
   const descEl = document.getElementById('weather-desc');
   const noteEl = document.getElementById('weather-note');
   const actionBtn = document.getElementById('weather-action');
-  console.debug('weather: elements', { iconEl, tempEl, descEl, noteEl, actionBtn });
+  const statusEl = document.getElementById('weather-status');
+  console.debug('weather: elements', { iconEl, tempEl, descEl, noteEl, actionBtn, statusEl });
+  if (statusEl) statusEl.textContent = 'Weather module loaded';
 
   function updateWeather({ emoji, label, temperature, note = '' }) {
     if (iconEl) iconEl.textContent = emoji;
@@ -47,6 +49,7 @@ export function initWeather() {
 
   function showError(message) {
     updateWeather({ emoji: '⚠️', label: message, temperature: '--' });
+    if (statusEl) statusEl.textContent = `Weather error: ${message}`;
   }
 
   function fetchWeather(latitude, longitude) {
@@ -82,6 +85,7 @@ export function initWeather() {
     actionBtn.textContent = label;
     actionBtn.style.display = visible ? 'inline-flex' : 'none';
     actionBtn.disabled = !visible;
+    if (statusEl) statusEl.textContent = label ? `Weather action: ${label}` : 'Weather ready';
   }
 
   function requestLocation() {

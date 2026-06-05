@@ -62,6 +62,7 @@
           <p class="weather-desc" id="weather-desc">Click the button below to allow location access and show your local weather.</p>
           <button class="weather-action" id="weather-action">Allow location</button>
           <p class="weather-note" id="weather-note">Powered by Open-Meteo and your browser location.</p>
+          <p class="weather-status" id="weather-status">JS status: waiting for module</p>
         </div>
       </div>
     </section>
@@ -72,6 +73,9 @@
     <img src="pink-piggy-bank.jpg" alt="Piggy bank" />
   </div>
   <script type="module" src="js/main.js"></script>
+  <script>
+    console.log('inline page script loaded');
+  </script>
   <script>
     // Fallback for environments where ES modules don't load (file:// or blocked modules).
     (function () {
