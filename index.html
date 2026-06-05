@@ -72,6 +72,72 @@
       cursor: default;
     }
 
+    .password-gate {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(54, 73, 88, 0.92);
+      z-index: 999;
+      color: #ffffff;
+      padding: 1.5rem;
+    }
+
+    .password-gate__box {
+      width: min(100%, 400px);
+      padding: 2rem;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+      text-align: center;
+    }
+
+    .password-gate__label {
+      margin: 0 0 1rem;
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .password-gate__input {
+      width: 100%;
+      padding: 0.95rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      font: inherit;
+      outline: none;
+      margin-bottom: 1rem;
+    }
+
+    .password-gate__submit {
+      width: 100%;
+      padding: 0.95rem 1rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: var(--pacific-cyan);
+      color: #ffffff;
+      font: inherit;
+      font-weight: 600;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .password-gate__submit:hover {
+      background: var(--dark-slate-grey);
+      transform: translateY(-1px);
+    }
+
+    .password-gate__error {
+      margin: 0.75rem 0 0;
+      color: rgba(255, 109, 109, 0.95);
+      font-size: 0.95rem;
+      min-height: 1.2rem;
+    }
+
     @media (max-width: 720px) {
       .weather-grid {
         grid-template-columns: 1fr;
@@ -85,7 +151,15 @@
   </style>
 </head>
 <body>
-  <main class="page">
+  <div class="password-gate" id="passwordGate">
+    <div class="password-gate__box">
+      <p class="password-gate__label">Enter the password to continue.</p>
+      <input id="passwordInput" class="password-gate__input" type="password" placeholder="Password" autocomplete="current-password" />
+      <button id="passwordSubmit" class="password-gate__submit" type="button">Unlock</button>
+      <p id="passwordError" class="password-gate__error"></p>
+    </div>
+  </div>
+  <main class="page" id="pageContent" style="display:none;">
     <header class="header">
       <div class="brand">
         <img class="headshot" src="reggie-prime.jpeg" alt="Andy headshot" />
@@ -139,10 +213,54 @@
     <footer class="footer">Made by Andy · simple HTML page · weather powered by Open-Meteo</footer>
   </main>
   <script>
+    const gate = document.getElementById('passwordGate');
+    const pageContent = document.getElementById('pageContent');
+    const pwInput = document.getElementById('passwordInput');
+    const pwSubmit = document.getElementById('passwordSubmit');
+    const pwError = document.getElementById('passwordError');
+    const PASSWORD = 'andysplace';
+
     const iconEl = document.getElementById('weather-icon');
     const tempEl = document.getElementById('weather-temp');
     const descEl = document.getElementById('weather-desc');
     const noteEl = document.getElementById('weather-note');
+
+    function showGateError(message) {
+      pwError.textContent = message;
+      pwInput.focus();
+    }
+
+    function unlockPage() {
+      gate.style.display = 'none';
+      pageContent.style.display = 'block';
+      localStorage.setItem('siteUnlocked', 'true');
+    }
+
+    function lockPage() {
+      gate.style.display = 'flex';
+      pageContent.style.display = 'none';
+    }
+
+    function checkPassword() {
+      if (pwInput.value === PASSWORD) {
+        unlockPage();
+      } else {
+        showGateError('Incorrect password.');
+      }
+    }
+
+    if (localStorage.getItem('siteUnlocked') === 'true') {
+      unlockPage();
+    } else {
+      lockPage();
+    }
+
+    pwSubmit.addEventListener('click', checkPassword);
+    pwInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        checkPassword();
+      }
+    });
 
     const weatherCodes = {
       0: { label: 'Clear skies', emoji: '☀️' },
