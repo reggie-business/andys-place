@@ -5,12 +5,22 @@ export function initAuth({ password = 'andysplace' } = {}) {
   const pwError = document.getElementById('passwordError');
 
   const unlock = () => {
+    console.debug('auth: unlocking page');
     body.classList.add('unlocked');
+    const gateEl = document.getElementById('passwordGate');
+    const pageEl = document.getElementById('pageContent');
+    if (gateEl) gateEl.style.display = 'none';
+    if (pageEl) pageEl.style.display = 'block';
     localStorage.setItem('siteUnlocked', 'true');
   };
 
   const lock = () => {
+    console.debug('auth: locking page');
     body.classList.remove('unlocked');
+    const gateEl = document.getElementById('passwordGate');
+    const pageEl = document.getElementById('pageContent');
+    if (gateEl) gateEl.style.display = 'flex';
+    if (pageEl) pageEl.style.display = 'none';
   };
 
   const showError = (msg) => {
